@@ -29,15 +29,17 @@ def scan_xml():
     file = find_xml()
     open_file = open(file, "r")
     read_open_file = open_file.read()
-    readline_open_file = open_file.readlines()
 
+    # Решение для Винды
+    win_source_path = read_open_file[43:66]
+    print("Windows path: ", win_source_path)
+
+    # Решение для Линукса
+    linx_source_path = read_open_file[191:210]
+    print("Linux path: ", linx_source_path)
 
     # Пока тут. Пробую в ручную
-    print(read_open_file.find(""))
-    # Для Винды source_path
-    print(read_open_file[43:66])
-    # Для Линукса source_path
-    print(read_open_file[191:210])
+    #print(read_open_file.find(""))
 
     # Закрываем фаил
     open_file.close()
