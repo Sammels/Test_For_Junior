@@ -32,10 +32,12 @@ def scan_xml():
     readline_open_file = open_file.readlines()
 
 
-    # Пока тута
+    # Пока тут. Пробую в ручную
     print(read_open_file.find(""))
-    print(read_open_file[44:-50])
-    print(read_open_file[179:])
+    # Для Винды source_path
+    print(read_open_file[43:66])
+    # Для Линукса source_path
+    print(read_open_file[191:210])
 
     # Закрываем фаил
     open_file.close()
