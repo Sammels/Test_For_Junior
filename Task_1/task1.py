@@ -1,7 +1,11 @@
 import os
+import re
+import xml.etree.ElementTree as ET
 import settings
 from glob import glob
 from platform import system
+
+# Импортнуть либо xml
 
 
 # 1. Проверить ОС, и выявить Windows, или Linux.
@@ -27,22 +31,25 @@ def scan_xml():
 
     # Берем и открываем файл.
     file = find_xml()
+
     open_file = open(file, "r")
     read_open_file = open_file.read()
 
-    # Решение для Винды
+    # Разобратся позже
+    # # Решение для Винды
     win_source_path = read_open_file[43:66]
     print("Windows path: ", win_source_path)
 
-    # Решение для Линукса
+    # # Решение для Линукса
     linx_source_path = read_open_file[191:210]
     print("Linux path: ", linx_source_path)
 
-    # Пока тут. Пробую в ручную
-    #print(read_open_file.find(""))
+    # # Пока тут. Пробую в ручную
+    print(read_open_file.find(""))
 
     # Закрываем фаил
-    open_file.close()
+    #open_file.close()
+    
 
 # 4. Используя эти переменные как пути реализуем копирование файлов.
 # Принимаем п.3 source_path, destination_path, file_name, 
