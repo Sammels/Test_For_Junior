@@ -1,62 +1,50 @@
 import os
-import re
-import xml.etree.ElementTree as ET
-import settings
-from glob import glob
-from platform import system
-
-# Импортнуть либо xml
+from shutil import copy
+from shutil import SameFileError, SpecialFileError, ExecError
+from lxml import etree
+from xmltodict import parse
 
 
-# 1. Проверить ОС, и выявить Windows, или Linux.
-def check_os():
-    os_ckecked = system()
-    print ("Основаня система: ", os_ckecked)
+# Парсим
+def check_file(xml_path: str, xsd_path: str) -> bool:
+    xsd_file_name = xsd_path
+    schema_root = etree.parse(xsd_file_name)
+    schema = etree.XMLSchema(schema_root)
 
-# 2. Ищем в папке файл config.xml
-def find_xml():
-    os.chdir(settings.dir_path)
-    for file in glob("*.xml"):
-        return file
+    xml_filename = xml_path
+    xml = etree.parse(xml_filename)
 
-# 3. Считываем файл конфига, парся source_path,destination_path,file_name,
-# Cохраняем в отдельные переменные. (Принимаем результат п.2) 
-# return source_path, destination_path, file_name
+    return schema.check_file(xml)
 
-def scan_xml():
-    # Определяем вызов функции
-    source_path = ""
-    destination_path = ""
-    file_name = ""
 
-    # Берем и открываем файл.
-    file = find_xml()
+if __name__ == "__main__":
+    path = os.curdir + "/config.xml"
+    # Открываем файл, считываем
+    try:
+        with open(os.curdir + "/config.xml", "r") as xml_file:
+            xml_dict = parse(xml_file.read())
+            xml_file.close()
+    except FileNotFoundError:
+        print('Файл не найден')
+    except PermissionError:
+        print('Отказано. Недостаточный уровень прав.ё')
+    except Exception as exc:
+        print(f'Ошибка: {exc}')
 
-    open_file = open(file, "r")
-    read_open_file = open_file.read()
+    if any(xml_dict) and check_file(path, "schema.xsd"):
+        dict_config = xml_dict['config']['file']
 
-    # Разобратся позже
-    # # Решение для Винды
-    win_source_path = read_open_file[43:66]
-    print("Windows path: ", win_source_path)
-
-    # # Решение для Линукса
-    linx_source_path = read_open_file[191:210]
-    print("Linux path: ", linx_source_path)
-
-    # # Пока тут. Пробую в ручную
-    print(read_open_file.find(""))
-
-    # Закрываем фаил
-    #open_file.close()
-    
-
-# 4. Используя эти переменные как пути реализуем копирование файлов.
-# Принимаем п.3 source_path, destination_path, file_name, 
-# Реализуем копироние по указанным переменным.
-
-def copy_file(scan_xml):
-    pass
-
-check_os()
-scan_xml()
+        for work_dict in dict_config:
+            src, dst, fname = work_dict['@sourse_path'], work_dict['@destination_path'], work_dict['@file_name']
+            try:
+                copy(src + fname, dst + fname, follow_symlinks=True)
+            except SameFileError:
+                print('{} и {} те же каталоги'.format(src, dst))
+            except SpecialFileError:
+                print('Выполнение операции неподдерживаемой в специальном фа ')
+            except ExecError:
+                print('Команда не может быть выполненна.')
+            except Exception as exc:
+                print(f'Error happened: {exc}')
+    else:
+        print('data from xml invalid')
